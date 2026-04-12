@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flex Advisor &mdash; Mercado Libre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --yellow: #FFE600;
+      --yellow-dark: #F5D800;
+      --yellow-light: #FFFDE7;
+      --blue: #3483FA;
+      --blue-dark: #2968C8;
+      --blue-light: #EBF3FF;
+      --text-dark: #333333;
+      --text-gray: #666666;
+      --border: #E8E8E8;
+      --white: #FFFFFF;
+      --red: #E53935;
+      --red-light: #FFF3F3;
+      --green: #2E7D32;
+      --green-light: #E8F5E9;
+      --orange: #FF6D00;
+      --amber: #FFA000;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #F5F5F5;
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── LANDING ─── */
+    #screen-landing { min-height: 100vh; display: flex; flex-direction: column; background: var(--white); }
+    .landing-topbar { background: var(--yellow); padding: 20px 32px; }
+    .landing-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px 80px; text-align: center;
+    }
+    .pill-label {
+      display: inline-block; background: var(--yellow); color: var(--text-dark);
+      font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; padding: 6px 16px; border-radius: 100px; margin-bottom: 28px;
+    }
+    .landing-h1 {
+      font-size: clamp(36px, 5vw, 64px); font-weight: 900;
+      color: var(--text-dark); line-height: 1.1; margin-bottom: 16px;
+    }
+    .landing-h1 span { color: var(--blue); }
+    .landing-subtitle {
+      font-size: 17px; color: var(--text-gray); max-width: 440px;
+      margin: 0 auto 40px; font-weight: 600; line-height: 1.6;
+    }
+    .input-wrap { width: 100%; max-width: 360px; margin-bottom: 16px; }
+    .input-wrap input {
+      width: 100%; padding: 18px 24px; font-family: 'Nunito', sans-serif;
+      font-size: 18px; font-weight: 700; border: 2px solid var(--border);
+      border-radius: 14px; outline: none; color: var(--text-dark);
+      background: var(--white); transition: border-color 0.2s, box-shadow 0.2s;
+      text-align: center; letter-spacing: 1px;
+    }
+    .input-wrap input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(52,131,250,0.12); }
+    .input-wrap input::placeholder { color: #BDBDBD; font-weight: 600; font-size: 16px; letter-spacing: 0; }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; max-width: 360px; padding: 18px 32px;
+      background: var(--blue); color: var(--white);
+      font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 800;
+      border: none; border-radius: 14px; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(52,131,250,0.30);
+    }
+    .btn-primary:hover { background: var(--blue-dark); transform: scale(1.02); }
+    .btn-primary:active { transform: scale(0.99); }
+    .landing-note { margin-top: 20px; font-size: 13px; color: #BDBDBD; font-weight: 600; }
+
+    .error-msg {
+      display: none; margin-top: 16px; max-width: 360px;
+      background: var(--red-light); border: 1px solid #FFCDD2;
+      border-left: 4px solid var(--red); border-radius: 10px;
+      padding: 12px 16px; font-size: 14px; font-weight: 700;
+      color: var(--red); text-align: left; line-height: 1.5;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ─── LOADING ─── */
+    #loading-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(255,255,255,0.96); z-index: 999;
+      flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    }
+    #loading-overlay.active { display: flex; }
+    .spinner { width: 48px; height: 48px; border: 5px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 17px; font-weight: 700; color: var(--text-dark); }
+
+    /* ─── CONSULTATION ─── */
+    #screen-consultation { display: none; flex-direction: column; min-height: 100vh; }
+    #screen-consultation.active { display: flex; }
+
+    /* STICKY HEADER */
+    .sticky-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--yellow);
+      padding: 12px 24px; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .header-nickname { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+    .badge-cluster { background: var(--blue); color: #fff; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 100px; }
+    .badge-city { background: rgba(0,0,0,0.08); color: var(--text-dark); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 100px; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+      border: 2px solid rgba(0,0,0,0.2); background: transparent; color: var(--text-dark);
+      font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+      border-radius: 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-back:hover { background: rgba(0,0,0,0.08); }
+
+    .main-content { max-width: 880px; width: 100%; margin: 0 auto; padding: 40px 24px 0; }
+
+    /* ─── ANCHOR CARD ─── */
+    .anchor-card {
+      background: var(--yellow); border-radius: var(--radius);
+      padding: 40px 40px; margin-bottom: 48px; text-align: center;
+      box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+    }
+    .anchor-card::after {
+      content: ''; position: absolute; top: 0; right: 0; width: 160px; height: 100%;
+      background: rgba(0,0,0,0.04); clip-path: polygon(40% 0, 100% 0, 100% 100%, 0% 100%);
+    }
+    .anchor-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(0,0,0,0.45); margin-bottom: 12px; }
+    .anchor-number { font-size: clamp(56px, 9vw, 96px); font-weight: 900; color: var(--text-dark); line-height: 1; margin-bottom: 10px; }
+    .anchor-label { font-size: 22px; font-weight: 700; color: var(--text-dark); max-width: 520px; margin: 0 auto; line-height: 1.3; }
+    .anchor-sub { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.45); margin-top: 14px; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-wrap { margin-bottom: 52px; }
+    .section-tag {
+      display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-gray); margin-bottom: 6px;
+    }
+    .section-title {
+      font-size: 24px; font-weight: 900; color: var(--text-dark);
+      margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title::before {
+      content: ''; display: inline-block; width: 5px; height: 26px;
+      background: var(--yellow); border-radius: 3px; flex-shrink: 0;
+    }
+
+    /* ─── SITUACIÓN: 2 CARDS ─── */
+    .situation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .sit-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 24px; text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .sit-card.sit-main { border: 2px solid var(--blue); background: var(--blue-light); }
+    .sit-number { font-size: 44px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+    .sit-label { font-size: 15px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+    .sit-sub { font-size: 13px; color: var(--text-gray); font-weight: 600; }
+    .utilization-bar { width: 100%; height: 8px; background: #E0E0E0; border-radius: 4px; margin-top: 14px; overflow: hidden; }
+    .utilization-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+
+    /* Collapsible */
+    .collapsible-trigger {
+      display: flex; align-items: center; gap: 8px; background: none;
+      border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      color: var(--text-gray); cursor: pointer; width: 100%; text-align: left;
+    }
+    .collapsible-trigger:hover { background: #F9F9F9; color: var(--text-dark); }
+    .collapsible-arrow { transition: transform 0.3s; }
+    .collapsible-trigger.open .collapsible-arrow { transform: rotate(180deg); }
+    .collapsible-body { display: none; margin-top: 16px; }
+    .collapsible-body.open { display: block; }
+
+    .config-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    .config-table th { background: #F5F5F5; padding: 10px 16px; text-align: left; font-weight: 800; color: var(--text-dark); border-bottom: 2px solid var(--border); }
+    .config-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    .config-table tr:last-child td { border-bottom: none; }
+    .status-active { color: var(--green); font-weight: 800; }
+    .status-inactive { color: var(--red); font-weight: 800; }
+
+    .zones-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .zone-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+    .zone-card.active { background: var(--white); }
+    .zone-card.inactive { background: #FFF5F5; border-color: #FFCDD2; }
+    .zone-icon { font-size: 16px; margin-top: 2px; flex-shrink: 0; }
+    .zone-name { font-size: 13px; font-weight: 800; color: var(--text-dark); }
+    .zone-sub { font-size: 12px; color: var(--text-gray); font-weight: 600; }
+
+    /* ─── GAP VISUAL ─── */
+    .gap-visual {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; align-items: center;
+      margin-bottom: 28px;
+    }
+    .gap-card { border-radius: var(--radius); padding: 28px 24px; text-align: center; }
+    .gap-card.seller { background: var(--blue-light); border: 2px solid var(--blue); }
+    .gap-card.market { background: var(--yellow-light); border: 2px solid var(--yellow-dark); }
+    .gap-card .big-number { font-size: 52px; font-weight: 900; line-height: 1; }
+    .gap-card .big-label { font-size: 14px; font-weight: 800; color: var(--text-dark); margin-top: 8px; }
+    .gap-card .big-detail { font-size: 12px; color: var(--text-gray); font-weight: 600; margin-top: 4px; }
+    .gap-arrow {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 0 16px; color: var(--red); font-weight: 900; font-size: 13px;
+    }
+    .gap-arrow-icon { font-size: 24px; }
+
+    /* ─── PLAN UNIFICADO (diagnóstico + acción fusionados) ─── */
+    .action-cards { display: flex; flex-direction: column; gap: 24px; }
+    .action-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 28px 24px;
+      box-shadow: var(--shadow-sm); display: flex; gap: 20px;
+    }
+    .action-card:first-child { box-shadow: var(--shadow-md); }
+    .action-number {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 900; color: var(--text-dark);
+      background: var(--yellow); margin-top: 2px;
+    }
+    .action-content { flex: 1; }
+    .action-timing {
+      display: inline-block; background: var(--blue); color: var(--white);
+      font-size: 11px; font-weight: 800; padding: 3px 12px;
+      border-radius: 100px; margin-bottom: 10px; letter-spacing: 0.5px;
+    }
+    .action-title { font-size: 19px; font-weight: 900; color: var(--text-dark); margin-bottom: 10px; line-height: 1.3; }
+    .action-why {
+      font-size: 15px; color: var(--text-dark); font-weight: 600;
+      line-height: 1.7; margin-bottom: 14px;
+    }
+    .action-fact {
+      background: var(--yellow-light); border-left: 3px solid var(--yellow-dark);
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 14px; font-weight: 700; color: var(--text-dark);
+      margin-bottom: 16px; line-height: 1.6;
+    }
+    .action-how {
+      background: #F5F5F5; border-radius: 10px; padding: 12px 18px;
+      font-size: 13px; font-weight: 700; color: var(--text-gray);
+      margin-bottom: 14px; line-height: 1.6;
+    }
+    .action-result {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-light); color: var(--green);
+      font-size: 13px; font-weight: 800; padding: 8px 16px; border-radius: 100px;
+    }
+
+    /* Carrier inline */
+    .carrier-inline { background: #F9F9FF; border: 1px solid #E0E8FF; border-radius: var(--radius-sm); padding: 16px 20px; margin-top: 16px; }
+    .carrier-inline-title { font-size: 13px; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+    .carrier-inline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .carrier-mini {
+      display: flex; align-items: center; gap: 10px; background: var(--white);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; cursor: pointer; transition: border-color 0.2s;
+    }
+    .carrier-mini:hover { border-color: var(--blue); }
+    .carrier-mini-dot { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: var(--white); flex-shrink: 0; }
+    .carrier-mini-info { flex: 1; }
+    .carrier-mini-name { font-weight: 800; color: var(--text-dark); font-size: 13px; }
+    .carrier-mini-detail { color: var(--text-gray); font-size: 11px; }
+    .carrier-mini-phone { color: var(--blue); font-weight: 700; font-size: 11px; }
+    .carriers-source { font-size: 11px; color: var(--text-gray); font-weight: 600; margin-top: 8px; font-style: italic; }
+
+    /* ─── CLOSING ─── */
+    .closing-section { background: var(--yellow); padding: 56px 24px; text-align: center; margin-top: 24px; }
+    .closing-headline { font-size: clamp(22px, 3.5vw, 36px); font-weight: 900; color: var(--text-dark); margin-bottom: 14px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.2; }
+    .closing-body { font-size: 17px; font-weight: 600; color: var(--text-dark); max-width: 480px; margin: 0 auto 28px; line-height: 1.6; opacity: 0.75; }
+    .closing-separator { border: none; border-top: 2px solid rgba(0,0,0,0.12); max-width: 200px; margin: 0 auto 24px; }
+    .closing-cta { font-size: 20px; font-weight: 900; color: var(--text-dark); margin-bottom: 28px; }
+    .btn-closing {
+      display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px;
+      background: var(--blue); color: var(--white);
+      font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
+      border: none; border-radius: 12px; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-closing:hover { background: var(--blue-dark); transform: scale(1.02); }
+
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 680px) {
+      .situation-grid { grid-template-columns: 1fr; }
+      .gap-visual { grid-template-columns: 1fr; }
+      .gap-arrow { padding: 8px 0; }
+      .carrier-inline-grid { grid-template-columns: 1fr; }
+      .zones-grid { grid-template-columns: 1fr; }
+      .sticky-header { flex-wrap: wrap; gap: 8px; }
+      .action-card { flex-direction: column; gap: 12px; }
+    }
+    @media (max-width: 480px) {
+      .landing-h1 { font-size: 32px; }
+      .section-title { font-size: 20px; }
+      .anchor-number { font-size: 56px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LANDING -->
+  <div id="screen-landing">
+    <div class="landing-topbar">
+      <img src="https://raw.githubusercontent.com/alejandropenaosorio2503/logo/main/ML_es_RGB_ML-Color-Izquierda.png" alt="Mercado Libre" height="40" style="display:block;" />
+    </div>
+    <div class="landing-body">
+      <span class="pill-label">Flex Advisor</span>
+      <h1 class="landing-h1">Encuentra el potencial <span>Flex</span> de tu vendedor</h1>
+      <p class="landing-subtitle">Ingresa el ID y en segundos ver&aacute;s cu&aacute;nto puede crecer con Flex, qu&eacute; lo est&aacute; frenando y c&oacute;mo solucionarlo hoy.</p>
+      <div class="input-wrap">
+        <input type="text" id="cust-id-input" placeholder="Ej: 247730346" maxlength="20" inputmode="numeric" autocomplete="off" />
+      </div>
+      <button class="btn-primary" id="btn-ver-asesoria">Ver diagn&oacute;stico &rarr;</button>
+      <div class="error-msg" id="error-msg"></div>
+      <p class="landing-note">Datos en tiempo real &middot; Flex Colombia &middot; Mercado Libre</p>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="loading-text" id="loading-text">Consultando datos...</p>
+  </div>
+
+  <!-- CONSULTATION -->
+  <div id="screen-consultation">
+    <header class="sticky-header">
+      <img src="https://raw.githubusercontent.com/alejandropenaosorio2503/logo/main/ML_es_RGB_ML-Color-Izquierda.png" alt="Mercado Libre" height="32" />
+      <div class="header-right">
+        <span class="header-nickname" id="hdr-nickname">&mdash;</span>
+        <span class="badge-cluster" id="hdr-cluster">&mdash;</span>
+        <span class="badge-city" id="hdr-city">&mdash;</span>
+      </div>
+      <button class="btn-back" id="btn-nueva-asesoria">&larr; Nueva consulta</button>
+    </header>
+
+    <div class="main-content">
+
+      <!-- CIFRA ANCLA -->
+      <div class="anchor-card fade-in" id="anchor-card"></div>
+
+      <!-- S1: SITUACIÓN -->
+      <div class="section-wrap fade-in">
+        <span class="section-tag">Situaci&oacute;n</span>
+        <h2 class="section-title">&iquest;C&oacute;mo est&aacute; su Flex hoy?</h2>
+        <div class="situation-grid" id="situation-grid"></div>
+        <button class="collapsible-trigger" id="collapsible-btn">
+          <span>Ver detalle de configuraci&oacute;n y zonas</span>
+          <span class="collapsible-arrow" style="margin-left:auto;">&#9662;</span>
+        </button>
+        <div class="collapsible-body" id="collapsible-body">
+          <table class="config-table">
+            <thead><tr><th>D&iacute;a</th><th>Cupos diarios</th><th>Cierre</th><th>Estado</th></tr></thead>
+            <tbody id="config-table-body"></tbody>
+          </table>
+          <div class="zones-grid" id="zones-grid"></div>
+        </div>
+      </div>
+
+      <!-- S2: LA BRECHA -->
+      <div class="section-wrap fade-in" id="gap-section-wrap">
+        <span class="section-tag">Oportunidad</span>
+        <h2 class="section-title" id="gap-title">&iquest;Cu&aacute;nto puede ganar?</h2>
+        <div id="gap-section"></div>
+        <div class="red-callout" id="red-callout" style="background:var(--red-light);border-left:4px solid var(--red);border-radius:10px;padding:20px 24px;font-size:16px;font-weight:700;color:var(--text-dark);line-height:1.6;"></div>
+      </div>
+
+      <!-- S3: QUÉ HACER (diagnóstico + plan fusionados) -->
+      <div class="section-wrap fade-in">
+        <span class="section-tag">Plan de acci&oacute;n</span>
+        <h2 class="section-title" id="plan-title">&mdash;</h2>
+        <p style="font-size:15px;color:var(--text-gray);font-weight:600;margin-top:-16px;margin-bottom:28px;">Ordenados por impacto. El primero se puede hacer en 10 minutos desde el panel.</p>
+        <div class="action-cards" id="action-cards"></div>
+      </div>
+
+    </div>
+
+    <!-- CLOSING -->
+    <div class="closing-section fade-in">
+      <p class="closing-headline" id="closing-headline">&mdash;</p>
+      <p class="closing-body" id="closing-body">&mdash;</p>
+      <hr class="closing-separator" />
+      <p class="closing-cta" id="closing-cta">&mdash;</p>
+      <button class="btn-closing" id="btn-volver-inicio">&larr; Volver al inicio</button>
+    </div>
+  </div>
+
+  <script>
+    // ── DATOS OFICIALES PROGRAMA FLEX (PPT validada, equipo Growth MCO) ──
+    var PF = {
+      cutoff: '2,5x',
+      fds: '+10% a +16%',
+      zonas: '15x',
+      llega_hoy: '1,9x'
+    };
+
+    // ── CARRIERS (PPT Farming Flex, tarifas sujetas a cambio) ──
+    var CARRIERS = [
+      { ini: 'G', bg: '#00897B', name: 'GG GO', detail: 'Sin m\u00ednimo \u2014 $9.890/env\u00edo', phone: '318 373 2850' },
+      { ini: 'P', bg: '#7B1FA2', name: 'Pibox', detail: '15% desc. 1er mes \u2014 $8.633/env\u00edo', phone: '310 787 2609' },
+      { ini: 'G', bg: '#1565C0', name: 'GLE', detail: 'S\u00e1b/dom, hasta 17kg \u2014 $11.810/env\u00edo', phone: '313 887 4160' },
+      { ini: 'C', bg: '#2E7D32', name: 'Carryt', detail: 'La m\u00e1s econ\u00f3mica \u2014 $7.607/env\u00edo', phone: '312 446 0234' }
+    ];
+
+    var screenLanding = document.getElementById('screen-landing');
+    var screenConsultation = document.getElementById('screen-consultation');
+    var loadingOverlay = document.getElementById('loading-overlay');
+    var loadingText = document.getElementById('loading-text');
+    var custIdInput = document.getElementById('cust-id-input');
+    var errorMsg = document.getElementById('error-msg');
+
+    function showError(m) { loadingOverlay.classList.remove('active'); screenLanding.style.display = 'flex'; errorMsg.textContent = m; errorMsg.classList.add('visible'); }
+    function clearError() { errorMsg.classList.remove('visible'); errorMsg.textContent = ''; }
+    function fmtNum(n) { return Number(n).toLocaleString('es-CO'); }
+    function formatCutoff(h) { var hr = parseInt(h); if (isNaN(hr)) return String(h); return (hr > 12 ? hr - 12 : hr === 0 ? 12 : hr) + ':00 ' + (hr < 12 ? 'AM' : 'PM'); }
+
+    function showScreen2() {
+      screenLanding.style.display = 'none'; loadingOverlay.classList.remove('active');
+      screenConsultation.classList.add('active'); window.scrollTo(0, 0); initScrollAnimations();
+    }
+    function showLanding() {
+      screenConsultation.classList.remove('active'); screenLanding.style.display = 'flex';
+      custIdInput.value = ''; clearError(); window.scrollTo(0, 0);
+      document.querySelectorAll('.fade-in').forEach(function(el) { el.classList.remove('visible'); });
+    }
+
+    function startLoading() {
+      var val = custIdInput.value.trim();
+      if (!val) { custIdInput.style.borderColor = 'var(--red)'; custIdInput.focus(); setTimeout(function() { custIdInput.style.borderColor = ''; }, 1200); return; }
+      clearError();
+      var custId = parseInt(val);
+      if (isNaN(custId)) { showError('El ID debe ser un n\u00famero. Verifica e intenta de nuevo.'); return; }
+      loadingOverlay.classList.add('active');
+      loadingText.textContent = 'Consultando datos...';
+      var tw = setTimeout(function() { loadingText.textContent = 'Tardando m\u00e1s de lo normal. Por favor espera...'; }, 15000);
+
+      fetch('https://web.furycloud.io/api/proxy/verdi_flows/webhook/flex-advisor?cust_id=' + custId)
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(data) {
+          clearTimeout(tw);
+          if (!data || data.error) { showError(data ? data.error : 'No se recibieron datos.'); loadingOverlay.classList.remove('active'); return; }
+          build(data.c || null, data.h || {}, data.z || [], data.r || null, data.b || null, data.o || null, data.m || null);
+        })
+        .catch(function(err) { clearTimeout(tw); loadingOverlay.classList.remove('active'); showError('Error: ' + (err.message || String(err))); });
+    }
+
+    function build(c, h, z, r, b, o, m) {
+      if (!c || !c.NICKNAME_SELLER) { showError('No encontramos informaci\u00f3n para ese vendedor en Flex. Verifica el ID.'); return; }
+
+      var nick = c.NICKNAME_SELLER, cluster = c.CLUSTER_SELLER || '\u2014';
+      var cutH = c.CUTOFF_WEEK != null ? parseInt(c.CUTOFF_WEEK) : null;
+      var cutD = cutH != null ? formatCutoff(cutH) : 'No configurado';
+      var cap = parseInt(c.PAQUETE_MAX) || 0;
+      var sat = c.WORKING_SAT == '1' || c.WORKING_SAT === 1;
+      var sun = c.WORKING_SUN == '1' || c.WORKING_SUN === 1;
+      var wk  = c.WORKING_WEEK == '1' || c.WORKING_WEEK === 1;
+      var elegibles = parseInt(c.ITEMS_ELEGIBLE_FLEX) || 0;
+      var avg = h.avg_diario || 0, dLim = h.dias_al_limite || 0, util = h.utilizacion_pct || 0, tDias = h.total_dias || 0;
+      var ciudad = (z[0] && z[0].SHP_SENDER_CITY_NAME) || '\u2014';
+      var zA = z.filter(function(x) { return x.SHP_ZONE_COVERED_FLAG == 1 || x.SHP_ZONE_COVERED_FLAG === true; });
+      var zI = z.filter(function(x) { return x.SHP_ZONE_COVERED_FLAG == 0 || x.SHP_ZONE_COVERED_FLAG === false; });
+      var tZ = z.length;
+      var bCap = (b && parseInt(b.cap)) || 0;
+      var bCut = (b && b.cutoff != null) ? parseInt(b.cutoff) : null;
+      var bCutD = bCut != null ? formatCutoff(bCut) : '\u2014';
+      var bSat = (b && (b.WORKING_SAT == '1' || b.WORKING_SAT === 1));
+      var oFlex = (o && parseInt(o.SI_FLEX)) || 0;
+      var oMe2  = (o && parseInt(o.SI_ME2)) || 0;
+      var oOp   = (o && parseInt(o.SI_OPORTUNIDAD)) || 0;
+      var sPen  = oMe2 > 0 ? Math.round(oFlex * 100 / oMe2) : 0;
+      var mPen  = (m && parseFloat(m.PENETRACION_FLEX_MCO)) || 0;
+      var mFlex = (m && parseInt(m.SI_FLEX_MCO)) || 0;
+      var mMe2  = (m && parseInt(m.SI_ME2_MCO)) || 0;
+      var mSellers = (m && parseInt(m.SELLERS_ACTIVOS_MCO)) || 0;
+
+      // ── HEADER ──
+      document.getElementById('hdr-nickname').textContent = nick;
+      document.getElementById('hdr-cluster').textContent = cluster;
+      document.getElementById('hdr-city').textContent = '\uD83D\uDCCD ' + ciudad;
+
+      // ── CIFRA ANCLA ──
+      var anchor = document.getElementById('anchor-card');
+      if (oOp > 0) {
+        anchor.innerHTML =
+          '<div class="anchor-eyebrow">Oportunidad de crecimiento</div>' +
+          '<div class="anchor-number">' + fmtNum(oOp) + '</div>' +
+          '<div class="anchor-label">pedidos por mes que podr\u00edan llegar el mismo d\u00eda</div>' +
+          '<div class="anchor-sub">Hoy salen por otro canal. Con Flex, llegan en el d\u00eda \u2014 sin cambiar productos.</div>';
+      } else {
+        anchor.innerHTML =
+          '<div class="anchor-eyebrow">Potencial Flex</div>' +
+          '<div class="anchor-number">' + fmtNum(elegibles) + '</div>' +
+          '<div class="anchor-label">productos listos para llegar el mismo d\u00eda</div>' +
+          '<div class="anchor-sub">Ya est\u00e1n publicados. Solo hay que configurar bien el Flex.</div>';
+      }
+
+      // ── S1: SITUACIÓN ─ 2 cards: cupos usados + cobertura ──
+      var utilColor = util >= 80 ? 'var(--red)' : util >= 50 ? 'var(--orange)' : 'var(--blue)';
+      var sitHtml =
+        '<div class="sit-card sit-main">' +
+          '<div class="sit-number" style="color:' + utilColor + ';">' + avg + ' / ' + cap + '</div>' +
+          '<div class="sit-label">Pedidos Flex por d\u00eda</div>' +
+          '<div class="sit-sub">Est\u00e1 usando ' + util + '% de los cupos disponibles</div>' +
+          '<div class="utilization-bar"><div class="utilization-fill" style="width:' + Math.min(util,100) + '%;background:' + utilColor + ';"></div></div>' +
+        '</div>' +
+        '<div class="sit-card">' +
+          '<div class="sit-number" style="color:' + (zI.length > 0 ? 'var(--orange)' : 'var(--green)') + ';">' +
+            (tZ > 0 ? zA.length + ' de ' + tZ : '\u2014') +
+          '</div>' +
+          '<div class="sit-label">Zonas donde llega el mismo d\u00eda</div>' +
+          '<div class="sit-sub">' +
+            (zI.length > 0 ? 'Hay ' + zI.length + ' zona' + (zI.length !== 1 ? 's' : '') + ' sin cubrir' : tZ > 0 ? 'Cubre todas las zonas' : 'Sin datos de zonas') +
+            ' &middot; Cierra a las ' + cutD +
+          '</div>' +
+        '</div>';
+      document.getElementById('situation-grid').innerHTML = sitHtml;
+
+      // Config table
+      document.getElementById('config-table-body').innerHTML =
+        '<tr><td>Lunes a viernes</td><td>' + cap + '/d\u00eda</td><td>' + cutD + '</td><td class="' + (wk ? 'status-active' : 'status-inactive') + '">' + (wk ? '\u2713 Activo' : '\u2717 Inactivo') + '</td></tr>' +
+        '<tr><td>S\u00e1bados</td><td>' + (sat ? cap + '/d\u00eda' : '\u2014') + '</td><td>' + (sat ? cutD : '\u2014') + '</td><td class="' + (sat ? 'status-active' : 'status-inactive') + '">' + (sat ? '\u2713 Activo' : '\u2717 Inactivo') + '</td></tr>' +
+        '<tr><td>Domingos</td><td>' + (sun ? cap + '/d\u00eda' : '\u2014') + '</td><td>' + (sun ? cutD : '\u2014') + '</td><td class="' + (sun ? 'status-active' : 'status-inactive') + '">' + (sun ? '\u2713 Activo' : '\u2717 Inactivo') + '</td></tr>';
+
+      var zGrid = document.getElementById('zones-grid');
+      zGrid.innerHTML = '';
+      zA.forEach(function(x) { zGrid.innerHTML += '<div class="zone-card active"><div class="zone-icon">\u2705</div><div><div class="zone-name">' + (x.SHP_DEST_LABEL || x.SHP_DEST_ZONE) + '</div><div class="zone-sub">' + (x.SHP_DEST_ZONE || '') + '</div></div></div>'; });
+      zI.forEach(function(x) { zGrid.innerHTML += '<div class="zone-card inactive"><div class="zone-icon">\u274C</div><div><div class="zone-name" style="color:var(--red);">' + (x.SHP_DEST_LABEL || x.SHP_DEST_ZONE) + '</div><div class="zone-sub">' + (x.SHP_DEST_ZONE || '') + '</div></div></div>'; });
+
+      // ── S2: BRECHA ──
+      var gapHtml = '';
+      if (oMe2 > 0 && mPen > 0) {
+        document.getElementById('gap-title').textContent = '\u00bfCu\u00e1nto m\u00e1s puede crecer?';
+        gapHtml =
+          '<div class="gap-visual">' +
+            '<div class="gap-card seller">' +
+              '<div class="big-number" style="color:var(--blue);">' + sPen + '%</div>' +
+              '<div class="big-label">De sus pedidos llegan el mismo d\u00eda</div>' +
+              '<div class="big-detail">' + fmtNum(oFlex) + ' de ' + fmtNum(oMe2) + ' env\u00edos este mes</div>' +
+            '</div>' +
+            '<div class="gap-arrow"><div class="gap-arrow-icon">\u25C4\u25BA</div><div>brecha</div></div>' +
+            '<div class="gap-card market">' +
+              '<div class="big-number" style="color:var(--text-dark);">' + mPen + '%</div>' +
+              '<div class="big-label">Promedio de Colombia</div>' +
+              '<div class="big-detail">' + fmtNum(mFlex) + ' de ' + fmtNum(mMe2) + ' &middot; ' + fmtNum(mSellers) + ' vendedores</div>' +
+            '</div>' +
+          '</div>';
+      } else {
+        document.getElementById('gap-title').textContent = '\u00bfQu\u00e9 lo est\u00e1 frenando?';
+      }
+      document.getElementById('gap-section').innerHTML = gapHtml;
+
+      if (oOp > 0) {
+        document.getElementById('red-callout').innerHTML = '\uD83D\uDCCA <strong>' + fmtNum(oOp) + ' pedidos por mes</strong> podr\u00edan llegar el mismo d\u00eda. Hoy salen por otro canal. La diferencia no son los productos \u2014 es la configuraci\u00f3n del Flex.';
+      } else {
+        document.getElementById('red-callout').innerHTML = '\uD83D\uDCCA Promedio actual: ' + avg + ' pedidos Flex al d\u00eda de ' + cap + ' cupos disponibles. Hay espacio para crecer.';
+      }
+
+      // ── S3: PLAN (diagnóstico + acción en una sola card) ──
+      var steps = [];
+
+      if (util >= 80 && bCap > cap) {
+        var tgt = Math.min(bCap, cap * 3);
+        steps.push({
+          timing: 'ESTA SEMANA \u2022 10 minutos',
+          title: 'Subir los cupos diarios a ' + fmtNum(tgt),
+          why: 'En ' + tDias + ' d\u00edas, lleg\u00f3 al l\u00edmite ' + dLim + ' veces. Cuando se llena el cupo, Mercado Libre deja de mostrar los productos a nuevos compradores. Subir el l\u00edmite no cambia la operaci\u00f3n \u2014 solo abre la puerta a m\u00e1s pedidos.',
+          fact: '\uD83D\uDCC8 El vendedor con mayor capacidad en su segmento maneja ' + fmtNum(bCap) + ' cupos. Con m\u00e1s cupos, el algoritmo muestra m\u00e1s.',
+          how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Capacidad diaria',
+          result: 'M\u00e1s visibilidad en b\u00fasquedas \u201cLlega Hoy\u201d',
+          carriers: false
+        });
+      }
+
+      if (cutH != null && bCut != null && cutH < bCut) {
+        var gap = bCut - cutH;
+        steps.push({
+          timing: 'ESTA SEMANA \u2022 5 minutos',
+          title: 'Extender el cierre hasta las ' + bCutD,
+          why: 'Hoy deja de recibir pedidos Flex a la ' + cutD + '. La mayor\u00eda de las compras en Mercado Libre ocurren entre las 2 PM y las 7 PM. Con ese cierre, se est\u00e1 perdiendo la franja de mayor demanda del d\u00eda.',
+          fact: '\u23F0 Vendedores con cierre a las 4 PM venden ' + PF.cutoff + ' m\u00e1s que los que cierran al mediod\u00eda. (Fuente: Programa Flex)',
+          how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Horario de corte',
+          result: 'Hasta ' + PF.cutoff + ' m\u00e1s ventas',
+          carriers: false
+        });
+      }
+
+      if (!sat && bSat) {
+        steps.push({
+          timing: 'PR\u00d3XIMAS 2 SEMANAS',
+          title: 'Activar los s\u00e1bados',
+          why: 'Los s\u00e1bados, cuando alguien filtra por \u201cLlega Hoy\u201d en Mercado Libre, este vendedor no aparece. Es un d\u00eda completo de ventas que se est\u00e1 regalando a la competencia. Se puede empezar con la misma capacidad de entre semana.',
+          fact: '\uD83D\uDCC5 Activar fines de semana agrega entre ' + PF.fds + ' en ventas. (Fuente: Programa Flex)',
+          how: null,
+          result: PF.fds + ' m\u00e1s en ventas',
+          carriers: true
+        });
+      }
+
+      if (tZ > 0 && zI.length > 0) {
+        var pZ = Math.round(zA.length * 100 / tZ);
+        steps.push({
+          timing: 'PR\u00d3XIMAS 2 SEMANAS',
+          title: 'Activar las ' + zI.length + ' zona' + (zI.length !== 1 ? 's' : '') + ' que faltan',
+          why: 'Las zonas ' + zI.map(function(x){ return x.SHP_DEST_LABEL || x.SHP_DEST_ZONE; }).join(', ') + ' no est\u00e1n activas. Los compradores en esas zonas no pueden recibir sus productos el mismo d\u00eda \u2014 para ellos, ese vendedor no tiene Flex. Activar esas zonas abre el canal sin cambiar nada del inventario.',
+          fact: '\uD83D\uDDFA\uFE0F Vendedores con el 90% de zonas cubiertas venden ' + PF.zonas + ' m\u00e1s que los que cubren el 10%. (Fuente: Programa Flex)',
+          how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Zonas de cobertura',
+          result: 'M\u00e1s compradores que pueden recibir el mismo d\u00eda',
+          carriers: false
+        });
+      }
+
+      if (steps.length === 0) {
+        steps.push({
+          timing: 'SIGUIENTE PASO',
+          title: 'Seguir escalando los cupos',
+          why: 'La configuraci\u00f3n est\u00e1 bien. El camino ahora es seguir subiendo los cupos gradualmente para que el algoritmo muestre m\u00e1s los productos a nuevos compradores.',
+          fact: '\uD83D\uDCC8 A m\u00e1s cupos disponibles, m\u00e1s visibilidad en las b\u00fasquedas con filtro \u201cLlega Hoy\u201d.',
+          how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Capacidad diaria',
+          result: 'M\u00e1s ventas Flex',
+          carriers: false
+        });
+      }
+
+      document.getElementById('plan-title').textContent =
+        steps.length + ' cambio' + (steps.length !== 1 ? 's' : '') + ' para crecer m\u00e1s con Flex';
+
+      var ac = document.getElementById('action-cards');
+      ac.innerHTML = '';
+      steps.forEach(function(s, i) {
+        var carrierBlock = '';
+        if (s.carriers) {
+          carrierBlock = '<div class="carrier-inline"><div class="carrier-inline-title">\u00bfQui\u00e9n puede hacer los env\u00edos los s\u00e1bados?</div><div class="carrier-inline-grid">';
+          CARRIERS.forEach(function(cr) {
+            carrierBlock += '<div class="carrier-mini" onclick="copyPhone(\'' + cr.phone + '\', this)"><div class="carrier-mini-dot" style="background:' + cr.bg + ';">' + cr.ini + '</div><div class="carrier-mini-info"><div class="carrier-mini-name">' + cr.name + '</div><div class="carrier-mini-detail">' + cr.detail + '</div><div class="carrier-mini-phone">\uD83D\uDCDE ' + cr.phone + '</div></div></div>';
+          });
+          carrierBlock += '</div><p class="carriers-source">Fuente: Programa Farming Flex, Mercado Libre. Tarifas sujetas a cambio.</p></div>';
+        }
+        ac.innerHTML +=
+          '<div class="action-card">' +
+            '<div class="action-number">' + (i + 1) + '</div>' +
+            '<div class="action-content">' +
+              '<span class="action-timing">' + s.timing + '</span>' +
+              '<h3 class="action-title">' + s.title + '</h3>' +
+              '<p class="action-why">' + s.why + '</p>' +
+              '<div class="action-fact">' + s.fact + '</div>' +
+              (s.how ? '<div class="action-how">' + s.how + '</div>' : '') +
+              '<span class="action-result">\u2713 ' + s.result + '</span>' +
+              carrierBlock +
+            '</div>' +
+          '</div>';
+      });
+
+      // ── CLOSING ──
+      var firstStep = steps[0] ? steps[0].title.toLowerCase() : 'el primer paso';
+      document.getElementById('closing-headline').textContent =
+        fmtNum(elegibles) + ' productos. ' + steps.length + ' cambio' + (steps.length !== 1 ? 's' : '') + '. M\u00e1s ventas el mismo d\u00eda.';
+      document.getElementById('closing-body').textContent =
+        'El inventario ya est\u00e1. Los compradores ya existen. Solo falta que los pedidos lleguen el mismo d\u00eda.';
+      document.getElementById('closing-cta').textContent =
+        '\u00bfEmpezamos con ' + firstStep + '?';
+
+      showScreen2();
+    }
+
+    document.getElementById('btn-ver-asesoria').addEventListener('click', startLoading);
+    custIdInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') startLoading(); });
+    custIdInput.addEventListener('input', function() { this.style.borderColor = ''; clearError(); });
+    document.getElementById('btn-nueva-asesoria').addEventListener('click', showLanding);
+    document.getElementById('btn-volver-inicio').addEventListener('click', showLanding);
+
+    document.getElementById('collapsible-btn').addEventListener('click', function() {
+      var body = document.getElementById('collapsible-body');
+      var isOpen = body.classList.contains('open');
+      body.classList.toggle('open'); this.classList.toggle('open');
+      this.querySelector('span:first-child').textContent = isOpen ? 'Ver detalle de configuraci\u00f3n y zonas' : 'Ocultar detalle';
+    });
+
+    function copyPhone(phone, el) {
+      navigator.clipboard.writeText(phone.replace(/\s/g, '')).catch(function() {});
+      var old = el.style.borderColor;
+      el.style.borderColor = 'var(--green)';
+      setTimeout(function() { el.style.borderColor = old; }, 1500);
+    }
+
+    function initScrollAnimations() {
+      var els = document.querySelectorAll('#screen-consultation .fade-in');
+      if (!('IntersectionObserver' in window)) { els.forEach(function(e) { e.classList.add('visible'); }); return; }
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(en) { if (en.isIntersecting) en.target.classList.add('visible'); });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(function(e, i) { e.style.transitionDelay = (i * 0.08) + 's'; obs.observe(e); });
+    }
+  </script>
+</body>
+</html>
