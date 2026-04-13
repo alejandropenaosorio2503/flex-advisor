@@ -9,37 +9,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --yellow: #FFE600;
-      --yellow-dark: #F5D800;
-      --yellow-light: #FFFDE7;
-      --blue: #3483FA;
-      --blue-dark: #2968C8;
-      --blue-light: #EBF3FF;
-      --text-dark: #333333;
-      --text-gray: #666666;
-      --border: #E8E8E8;
-      --white: #FFFFFF;
-      --red: #E53935;
-      --red-light: #FFF3F3;
-      --green: #2E7D32;
-      --green-light: #E8F5E9;
-      --orange: #FF6D00;
-      --amber: #FFA000;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-      --radius: 16px;
-      --radius-sm: 10px;
+      --yellow: #FFE600; --yellow-dark: #F5D800; --yellow-light: #FFFDE7;
+      --blue: #3483FA; --blue-dark: #2968C8; --blue-light: #EBF3FF;
+      --text-dark: #333333; --text-gray: #666666; --border: #E8E8E8;
+      --white: #FFFFFF; --red: #E53935; --red-light: #FFF3F3;
+      --green: #2E7D32; --green-light: #E8F5E9; --orange: #FF6D00; --amber: #FFA000;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.07); --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+      --radius: 16px; --radius-sm: 10px;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: #F5F5F5;
-      color: var(--text-dark);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
+    body { font-family: 'Nunito', sans-serif; background: #F5F5F5; color: var(--text-dark); line-height: 1.6; min-height: 100vh; }
 
     /* LANDING */
     #screen-landing { min-height: 100vh; display: flex; flex-direction: column; background: var(--white); }
@@ -70,13 +49,16 @@
     /* CONSULTATION */
     #screen-consultation { display: none; flex-direction: column; min-height: 100vh; }
     #screen-consultation.active { display: flex; }
-    .sticky-header { position: sticky; top: 0; z-index: 100; background: var(--yellow); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .sticky-header { position: sticky; top: 0; z-index: 100; background: var(--yellow); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     .header-nickname { font-size: 15px; font-weight: 800; color: var(--text-dark); }
     .badge-cluster { background: var(--blue); color: #fff; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 100px; }
     .badge-city { background: rgba(0,0,0,0.08); color: var(--text-dark); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 100px; }
-    .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: 2px solid rgba(0,0,0,0.2); background: transparent; color: var(--text-dark); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; border-radius: 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 2px solid rgba(0,0,0,0.2); background: transparent; color: var(--text-dark); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; border-radius: 10px; cursor: pointer; white-space: nowrap; }
     .btn-back:hover { background: rgba(0,0,0,0.08); }
+    .btn-pdf { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 2px solid rgba(0,0,0,0.2); background: rgba(0,0,0,0.08); color: var(--text-dark); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+    .btn-pdf:hover { background: rgba(0,0,0,0.15); }
     .main-content { max-width: 880px; width: 100%; margin: 0 auto; padding: 40px 24px 0; }
 
     /* ANCHOR CARD */
@@ -185,6 +167,29 @@
       .section-title { font-size: 20px; }
       .anchor-number { font-size: 56px; }
     }
+
+    /* PDF / PRINT */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white !important; font-size: 12px; }
+      #screen-landing, #loading-overlay { display: none !important; }
+      #screen-consultation { display: flex !important; }
+      .sticky-header { position: static !important; box-shadow: none !important; border-bottom: 3px solid #FFE600; margin-bottom: 24px; }
+      .btn-back, .btn-pdf { display: none !important; }
+      .main-content { padding: 0 16px; }
+      .collapsible-trigger { display: none !important; }
+      .collapsible-body { display: block !important; }
+      .fade-in { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .action-card { break-inside: avoid; page-break-inside: avoid; }
+      .anchor-card { break-inside: avoid; page-break-inside: avoid; }
+      .section-wrap { break-inside: avoid; page-break-inside: avoid; margin-bottom: 32px; }
+      .closing-section { break-inside: avoid; page-break-inside: avoid; }
+      .gap-visual { grid-template-columns: 1fr 60px 1fr; }
+      .situation-grid { grid-template-columns: 1fr 1fr; }
+      .carrier-inline-grid { grid-template-columns: 1fr 1fr; }
+      .zones-grid { grid-template-columns: 1fr 1fr; }
+      .shadow-sm, .shadow-md { box-shadow: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -222,7 +227,10 @@
         <span class="badge-cluster" id="hdr-cluster">&mdash;</span>
         <span class="badge-city" id="hdr-city">&mdash;</span>
       </div>
-      <button class="btn-back" id="btn-nueva-asesoria">&larr; Nueva consulta</button>
+      <div class="header-actions">
+        <button class="btn-pdf" onclick="window.print()">&#8595; PDF</button>
+        <button class="btn-back" id="btn-nueva-asesoria">&larr; Nuevo</button>
+      </div>
     </header>
 
     <div class="main-content">
@@ -245,11 +253,11 @@
         </div>
       </div>
 
-      <div class="section-wrap fade-in" id="gap-section-wrap">
+      <div class="section-wrap fade-in">
         <span class="section-tag">Oportunidad</span>
         <h2 class="section-title" id="gap-title">&iquest;Cu&aacute;nto puede ganar?</h2>
         <div id="gap-section"></div>
-        <div class="red-callout" id="red-callout" style="background:var(--red-light);border-left:4px solid var(--red);border-radius:10px;padding:20px 24px;font-size:16px;font-weight:700;color:var(--text-dark);line-height:1.6;"></div>
+        <div id="red-callout" style="background:var(--red-light);border-left:4px solid var(--red);border-radius:10px;padding:20px 24px;font-size:16px;font-weight:700;color:var(--text-dark);line-height:1.6;"></div>
       </div>
 
       <div class="section-wrap fade-in">
@@ -290,9 +298,45 @@
     function fmtNum(n) { return Number(n).toLocaleString('es-CO'); }
     function formatCutoff(h) { var hr = parseInt(h); if (isNaN(hr)) return String(h); return (hr > 12 ? hr - 12 : hr === 0 ? 12 : hr) + ':00 ' + (hr < 12 ? 'AM' : 'PM'); }
 
-    function showScreen2() { screenLanding.style.display = 'none'; loadingOverlay.classList.remove('active'); screenConsultation.classList.add('active'); window.scrollTo(0, 0); initScrollAnimations(); }
-    function showLanding() { screenConsultation.classList.remove('active'); screenLanding.style.display = 'flex'; custIdInput.value = ''; clearError(); window.scrollTo(0, 0); document.querySelectorAll('.fade-in').forEach(function(el) { el.classList.remove('visible'); }); }
+    function showScreen2() {
+      screenLanding.style.display = 'none';
+      loadingOverlay.classList.remove('active');
+      screenConsultation.classList.add('active');
+      window.scrollTo(0, 0);
+      initScrollAnimations();
+    }
+    function showLanding() {
+      screenConsultation.classList.remove('active');
+      screenLanding.style.display = 'flex';
+      custIdInput.value = '';
+      clearError();
+      window.scrollTo(0, 0);
+      window.history.replaceState(null, '', window.location.pathname);
+      document.querySelectorAll('.fade-in').forEach(function(el) { el.classList.remove('visible'); });
+    }
 
+    // Lee datos del hash #data= que pone Verdiflow via redirect
+    function initFromHash() {
+      var hash = window.location.hash;
+      if (hash && hash.indexOf('#data=') === 0) {
+        loadingOverlay.classList.add('active');
+        loadingText.textContent = 'Cargando diagn\u00f3stico...';
+        try {
+          var encoded = hash.slice(6);
+          var pad = encoded.length % 4;
+          if (pad === 2) encoded += '==';
+          else if (pad === 3) encoded += '=';
+          var b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+          var json = atob(b64);
+          var data = JSON.parse(json);
+          build(data.c || null, data.h || {}, data.z || [], data.r || null, data.b || null, data.o || null, data.m || null);
+        } catch(e) {
+          showError('Error al cargar los datos. Por favor solicita el link de nuevo.');
+        }
+      }
+    }
+
+    // Redirige a Verdiflow — el browser navega, Verdiflow responde con 302 de vuelta aqui con datos
     function startLoading() {
       var val = custIdInput.value.trim();
       if (!val) { custIdInput.style.borderColor = 'var(--red)'; custIdInput.focus(); setTimeout(function() { custIdInput.style.borderColor = ''; }, 1200); return; }
@@ -300,12 +344,8 @@
       var custId = parseInt(val);
       if (isNaN(custId)) { showError('El ID debe ser un n\u00famero. Verifica e intenta de nuevo.'); return; }
       loadingOverlay.classList.add('active');
-      loadingText.textContent = 'Consultando datos...';
-      var tw = setTimeout(function() { loadingText.textContent = 'Tardando m\u00e1s de lo normal. Por favor espera...'; }, 15000);
-      fetch('https://web.furycloud.io/api/proxy/verdi_flows/webhook/flex-advisor?cust_id=' + custId)
-        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(function(data) { clearTimeout(tw); if (!data || data.error) { showError(data ? data.error : 'No se recibieron datos.'); loadingOverlay.classList.remove('active'); return; } build(data.c || null, data.h || {}, data.z || [], data.r || null, data.b || null, data.o || null, data.m || null); })
-        .catch(function(err) { clearTimeout(tw); loadingOverlay.classList.remove('active'); showError('Error: ' + (err.message || String(err))); });
+      loadingText.textContent = 'Consultando datos en tiempo real...';
+      window.location.href = 'https://web.furycloud.io/api/proxy/verdi_flows/webhook/flex-advisor?cust_id=' + custId;
     }
 
     function build(c, h, z, r, b, o, m) {
@@ -364,7 +404,7 @@
       if (util >= 80 && bCap > cap) { var tgt = Math.min(bCap, cap * 3); steps.push({ timing: 'ESTA SEMANA \u2022 10 minutos', title: 'Subir los cupos diarios a ' + fmtNum(tgt), why: 'En ' + tDias + ' d\u00edas, lleg\u00f3 al l\u00edmite ' + dLim + ' veces. Cuando se llena el cupo, Mercado Libre deja de mostrar los productos a nuevos compradores. Subir el l\u00edmite no cambia la operaci\u00f3n \u2014 solo abre la puerta a m\u00e1s pedidos.', fact: '\uD83D\uDCC8 El vendedor con mayor capacidad en su segmento maneja ' + fmtNum(bCap) + ' cupos. Con m\u00e1s cupos, el algoritmo muestra m\u00e1s.', how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Capacidad diaria', result: 'M\u00e1s visibilidad en b\u00fasquedas \u201cLlega Hoy\u201d', carriers: false }); }
       if (cutH != null && bCut != null && cutH < bCut) { steps.push({ timing: 'ESTA SEMANA \u2022 5 minutos', title: 'Extender el cierre hasta las ' + bCutD, why: 'Hoy deja de recibir pedidos Flex a la ' + cutD + '. La mayor\u00eda de las compras en Mercado Libre ocurren entre las 2 PM y las 7 PM. Con ese cierre, se est\u00e1 perdiendo la franja de mayor demanda del d\u00eda.', fact: '\u23F0 Vendedores con cierre a las 4 PM venden ' + PF.cutoff + ' m\u00e1s que los que cierran al mediod\u00eda. (Fuente: Programa Flex)', how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Horario de corte', result: 'Hasta ' + PF.cutoff + ' m\u00e1s ventas', carriers: false }); }
       if (!sat && bSat) { steps.push({ timing: 'PR\u00d3XIMAS 2 SEMANAS', title: 'Activar los s\u00e1bados', why: 'Los s\u00e1bados, cuando alguien filtra por \u201cLlega Hoy\u201d en Mercado Libre, este vendedor no aparece. Es un d\u00eda completo de ventas que se est\u00e1 regalando a la competencia.', fact: '\uD83D\uDCC5 Activar fines de semana agrega entre ' + PF.fds + ' en ventas. (Fuente: Programa Flex)', how: null, result: PF.fds + ' m\u00e1s en ventas', carriers: true }); }
-      if (tZ > 0 && zI.length > 0) { var pZ = Math.round(zA.length * 100 / tZ); steps.push({ timing: 'PR\u00d3XIMAS 2 SEMANAS', title: 'Activar las ' + zI.length + ' zona' + (zI.length !== 1 ? 's' : '') + ' que faltan', why: 'Las zonas ' + zI.map(function(x){ return x.SHP_DEST_LABEL || x.SHP_DEST_ZONE; }).join(', ') + ' no est\u00e1n activas. Los compradores en esas zonas no pueden recibir sus productos el mismo d\u00eda.', fact: '\uD83D\uDDFA\uFE0F Vendedores con el 90% de zonas cubiertas venden ' + PF.zonas + ' m\u00e1s que los que cubren el 10%. (Fuente: Programa Flex)', how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Zonas de cobertura', result: 'M\u00e1s compradores que pueden recibir el mismo d\u00eda', carriers: false }); }
+      if (tZ > 0 && zI.length > 0) { steps.push({ timing: 'PR\u00d3XIMAS 2 SEMANAS', title: 'Activar las ' + zI.length + ' zona' + (zI.length !== 1 ? 's' : '') + ' que faltan', why: 'Las zonas ' + zI.map(function(x){ return x.SHP_DEST_LABEL || x.SHP_DEST_ZONE; }).join(', ') + ' no est\u00e1n activas. Los compradores en esas zonas no pueden recibir sus productos el mismo d\u00eda.', fact: '\uD83D\uDDFA\uFE0F Vendedores con el 90% de zonas cubiertas venden ' + PF.zonas + ' m\u00e1s que los que cubren el 10%. (Fuente: Programa Flex)', how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Zonas de cobertura', result: 'M\u00e1s compradores que pueden recibir el mismo d\u00eda', carriers: false }); }
       if (steps.length === 0) { steps.push({ timing: 'SIGUIENTE PASO', title: 'Seguir escalando los cupos', why: 'La configuraci\u00f3n est\u00e1 bien. El camino ahora es seguir subiendo los cupos gradualmente para que el algoritmo muestre m\u00e1s los productos a nuevos compradores.', fact: '\uD83D\uDCC8 A m\u00e1s cupos disponibles, m\u00e1s visibilidad en las b\u00fasquedas con filtro \u201cLlega Hoy\u201d.', how: '\uD83D\uDCF1 Panel de Mercado Libre \u2192 Preferencias de venta \u2192 Env\u00edos Flex \u2192 Capacidad diaria', result: 'M\u00e1s ventas Flex', carriers: false }); }
 
       document.getElementById('plan-title').textContent = steps.length + ' cambio' + (steps.length !== 1 ? 's' : '') + ' para crecer m\u00e1s con Flex';
@@ -398,6 +438,9 @@
       var obs = new IntersectionObserver(function(entries) { entries.forEach(function(en) { if (en.isIntersecting) en.target.classList.add('visible'); }); }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
       els.forEach(function(e, i) { e.style.transitionDelay = (i * 0.08) + 's'; obs.observe(e); });
     }
+
+    // Auto-render si viene desde el redirect de Verdiflow
+    document.addEventListener('DOMContentLoaded', initFromHash);
   </script>
 </body>
 </html>
